@@ -1,0 +1,199 @@
+---
+/*
+    PUBLIC_INTERFACE
+    NoteModal.astro - Modal dialog for creating or editing a note.
+    Props:
+      show: boolean, visibility of modal
+      onClose: function to close the modal
+      onSave: function(title, content) to save note; must receive id in edit mode
+      editing: boolean, whether editing mode
+      note: {id, title, content} (optional; required in edit mode)
+*/
+const { show, onClose, onSave, editing = false, note = {title: '', content: ''} } = Astro.props;
+const [title, setTitle] = Astro.useState(note.title || '');
+const [content, setContent] = Astro.useState(note.content || '');
+const [error, setError] = Astro.useState('');
+function handleSave(e) {
+  e.preventDefault();
+  if (!title.trim() && !content.trim()) {
+    setError('Please enter a title or content for your note.');
+    return;
+  }
+  setError('');
+  if (editing) {
+    onSave({ id: note.id, title: title.trim(), content: content.trim() });
+  } else {
+    onSave({ title: title.trim(), content: content.trim() });
+  }
+  setTitle('');
+  setContent('');
+}
+function handleClose() {
+  setError('');
+  setTitle(note.title || '');
+  setContent(note.content || '');
+  onClose();
+}
+Astro.watch(() => {
+  if (show && editing) {
+    setTitle(note.title || '');
+    setContent(note.content || '');
+    setError('');
+  } else if (show && !editing) {
+    setTitle('');
+    setContent('');
+    setError('');
+  }
+}, [show, editing, note]);
+---
+{show && (
+  <div class="modal-overlay" aria-modal="true">
+    <div class="modal-dialog">
+      <button class="close-btn" title="Close" onClick={handleClose}>&times;</button>
+      <h2>{editing ? "Edit Note" : "New Note"}</h2>
+      <form class="note-form" onSubmit={handleSave}>
+        <label>
+          Title
+          <input 
+            type="text" 
+            value={title}
+            placeholder="Title"
+            autofocus
+            maxLength={80}
+            onInput={e => setTitle(e.target.value)}
+            style="border-color:#4F8A8B"
+          />
+        </label>
+        <label>
+          Content
+          <textarea 
+            value={content}
+            placeholder="Your note..."
+            rows="5"
+            maxLength={1500}
+            onInput={e => setContent(e.target.value)}
+            style="border-color:#4F8A8B"
+          ></textarea>
+        </label>
+        {error && <div class="form-error">{error}</div>}
+        <div class="form-actions">
+          <button type="button" class="cancel" onClick={handleClose}>Cancel</button>
+          <button type="submit" class="save">{editing ? "Save" : "Create"}</button>
+        </div>
+      </form>
+    </div>
+  </div>
+)}
+<style>
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1200;
+    background: rgba(0,0,0,0.22);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-dialog {
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0 8px 36px #4F8A8B33;
+    min-width: 330px;
+    max-width: 98vw;
+    width: 410px;
+    padding: 2.2rem 1.6rem 1.5rem 1.6rem;
+    position: relative;
+    animation: modal-in .29s ease;
+    display: flex;
+    flex-direction: column;
+  }
+  @keyframes modal-in { from { opacity:0; transform: translateY(30px);} to { opacity:1; transform: translateY(0);} }
+  .close-btn {
+    border: none;
+    background: none;
+    font-size: 2rem;
+    color: #D7263D;
+    position: absolute;
+    top: 13px; right: 15px;
+    line-height: 1;
+    cursor: pointer;
+    z-index: 2;
+    transition: color 0.16s;
+  }
+  .close-btn:hover { color: #9C001C; }
+  h2 {
+    font-weight: 600;
+    margin: 0 0 1.3rem 0;
+    color: #4F8A8B;
+    text-align: left;
+    font-size: 1.25rem;
+  }
+  .note-form label {
+    display: block;
+    font-size: 1rem;
+    margin-bottom: 0.4rem;
+    color: var(--text-secondary);
+  }
+  .note-form input, .note-form textarea {
+    width: 100%;
+    margin: 0 0 1.1rem 0;
+    padding: 0.8em 0.7em;
+    border: 1.7px solid #4F8A8B;
+    border-radius: 0.5em;
+    font-size: 0.99rem;
+    outline: none;
+    color: var(--text-color);
+    background: var(--card-bg);
+    transition: border-color 0.14s;
+    box-sizing: border-box;
+    font-family: inherit;
+    resize: none;
+  }
+  .note-form input:focus, .note-form textarea:focus {
+    border-color: #F49D37;
+  }
+  .form-error {
+    color: #D7263D;
+    font-size: 0.96rem;
+    margin-bottom: 0.4rem;
+  }
+  .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1.1rem;
+    margin-top: 4px;
+  }
+  .form-actions button {
+    font-size: 1.04rem;
+    border-radius: 0.5em;
+    padding: 0.6em 1.5em;
+    border: none;
+    cursor: pointer;
+    outline: none;
+    transition: background 0.14s, color 0.14s;
+  }
+  .form-actions .cancel {
+    background: #fff;
+    border: 1.2px solid #ccc;
+    color: #444;
+  }
+  .form-actions .cancel:hover {
+    background: #f7f7f7;
+    border-color: #aaa;
+    color: #222;
+  }
+  .form-actions .save {
+    background: #4F8A8B;
+    color: #fff;
+    font-weight: 500;
+    border: 1.2px solid #4F8A8B;
+  }
+  .form-actions .save:hover {
+    background: #F49D37;
+    border-color: #F49D37;
+    color: #1d1d1d;
+  }
+  @media (max-width: 520px) {
+    .modal-dialog { padding: 1.3rem 0.5rem 1rem 0.5rem; min-width: unset; width: 99vw;}
+  }
+</style>

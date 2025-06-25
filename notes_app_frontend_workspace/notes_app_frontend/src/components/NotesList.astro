@@ -1,0 +1,142 @@
+---
+/*
+    PUBLIC_INTERFACE
+    NotesList.astro - Displays a grid of notes with edit and delete actions.
+    Props:
+      notes: Array of note objects {id, title, content, createdAt}
+      onEdit: function(id) to trigger edit modal/dialog
+      onDelete: function(id) to delete note
+*/
+const { notes = [], onEdit, onDelete } = Astro.props;
+---
+
+<div class="notes-list">
+  {notes.length === 0 
+    ? <div class="empty-state">No notes found. Click <span class="plus-symbol">+</span> to add a note.</div>
+    : notes.map(note => (
+      <div class="note-card" key={note.id}>
+        <div class="note-header">
+          <h3>{note.title || "Untitled"}</h3>
+          <div class="note-actions">
+            <button class="edit-btn" title="Edit" onClick={() => onEdit(note.id)}>
+              <svg viewBox="0 0 20 20" width="18" height="18"><path d="M14.7 3.3l2 2c.4.4.4 1 0 1.4l-8.5 8.5-3 1 1-3 8.5-8.5c.4-.4 1-.4 1.4 0z" fill="#4F8A8B"/></svg>
+            </button>
+            <button class="delete-btn" title="Delete" onClick={() => onDelete(note.id)}>
+              <svg viewBox="0 0 20 20" width="18" height="18"><path d="M6 8v7M10 8v7M14 8v7M3 5h14M5 5V4a2 2 0 012-2h6a2 2 0 012 2v1" stroke="#D7263D" stroke-width="1.7" stroke-linecap="round" fill="none"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="note-content">{note.content.slice(0, 180)}{note.content.length > 180 ? '…' : ''}</div>
+        <div class="note-meta">
+          <span class="note-date">{new Date(note.createdAt).toLocaleString()}</span>
+        </div>
+      </div>
+    ))
+  }
+</div>
+
+<style>
+  .notes-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit,minmax(270px,1fr));
+    gap: 1.6rem;
+    padding: 1.8rem 0;
+    width: 100%;
+    align-items: stretch;
+  }
+  .empty-state {
+    color: var(--text-secondary);
+    font-size: 1.2rem;
+    text-align: center;
+    width: 100%;
+    padding: 3rem 0;
+  }
+  .plus-symbol {
+    color: #4F8A8B;
+    font-weight: bold;
+    font-size: 1.2rem;
+    vertical-align: middle;
+  }
+  .note-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 1rem;
+    box-shadow: 0 2px 8px var(--shadow-color);
+    display: flex;
+    flex-direction: column;
+    padding: 1.4rem 1.2rem 1rem 1.2rem;
+    transition: box-shadow 0.19s, border-color 0.19s;
+    min-height: 160px;
+  }
+  .note-card:hover {
+    border-color: #F49D37;
+    box-shadow: 0 4px 14px var(--shadow-hover-color);
+  }
+  .note-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 0.7rem;
+  }
+  .note-header h3 {
+    font-size: 1.13rem;
+    margin: 0;
+    flex: 1 1 140px;
+    font-weight: 600;
+    color: var(--text-color);
+    word-break: break-word;
+  }
+  .note-actions {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+  .edit-btn, .delete-btn {
+    background: none;
+    border: none;
+    border-radius: 0.35rem;
+    padding: 3px 4px;
+    cursor: pointer;
+    transition: background 0.14s;
+    line-height: 22px;
+    display: flex;
+    align-items: center;
+  }
+  .edit-btn:hover {
+    background: #4F8A8B11;
+  }
+  .delete-btn:hover {
+    background: #D7263D11;
+  }
+  .note-content {
+    font-size: 0.99rem;
+    color: var(--text-secondary);
+    margin-bottom: 1.1rem;
+    margin-top: 0.1rem;
+    flex: 1 1 auto;
+    white-space: pre-line;
+    word-break: break-word;
+  }
+  .note-meta {
+    text-align: right;
+    font-size: 0.82rem;
+    color: #858585;
+    margin-top: auto;
+  }
+  .note-date {
+    padding-right: 4px;
+  }
+  @media (max-width: 600px) {
+    .notes-list {
+      gap: 1rem;
+      padding: 1.1rem 0;
+    }
+    .note-card {
+      padding: 1.06rem 0.89rem 0.8rem 0.89rem;
+    }
+    .note-header h3 {
+      font-size: 1.01rem;
+    }
+  }
+</style>

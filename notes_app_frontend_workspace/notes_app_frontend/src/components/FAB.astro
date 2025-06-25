@@ -1,0 +1,45 @@
+---
+/*
+    PUBLIC_INTERFACE
+    FAB.astro - Floating action button for adding a new note.
+    Props:
+      onClick: function to trigger note creation modal/dialog
+      label (optional): tooltip label content
+*/
+const { onClick, label = "Add Note" } = Astro.props;
+---
+<button class="fab" aria-label={label} title={label} onClick={onClick}>
+  <svg width="30" height="30" viewBox="0 0 24 24"><circle cx="12" cy="12" r="12" fill="#4F8A8B"/><path d="M7 12h10M12 7v10" stroke="#F49D37" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+</button>
+<style>
+  .fab {
+    position: fixed;
+    right: 2.1rem;
+    bottom: 2.2rem;
+    width: 62px;
+    height: 62px;
+    border: none;
+    border-radius: 50%;
+    box-shadow: 0 6px 24px #4F8A8BDD, 0 1.1px 3px var(--shadow-color);
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 1100;
+    transition: background 0.2s, box-shadow 0.19s, transform 0.11s;
+    outline: none;
+  }
+  .fab:hover {
+    background: #F5F9F9;
+    box-shadow: 0 10px 26px #4F8A8BEE, 0 2px 8px #4F8A8B22;
+    transform: scale(1.08);
+  }
+  @media (max-width: 620px) {
+    .fab {
+      width: 50px; height: 50px;
+      right: 1.13rem;
+      bottom: 1.10rem;
+    }
+  }
+</style>
